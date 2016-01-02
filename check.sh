@@ -83,9 +83,12 @@ if [ ! -d "../db" ]; then
   mkdir -p "../db"
 fi
 
+#set database variable
+db=$(echo ../db/$appname.db)
+
 #if database file do not exist then create one
-if [ ! -f "../db/$appname.db" ]; then
-  touch "../db/$appname.db"
+if [ ! -f "$db" ]; then
+  touch "$db"
 fi
 
 #check if google drive config directory has been made
@@ -102,6 +105,34 @@ then
   echo 7z support no installed. Please run:
   echo sudo apt-get install p7zip-full
 fi
+
+
+linklist=$(wget --no-cookies --no-check-certificate https://www.java.com/en/download/manual.jsp -qO- | grep BundleId | sed "s/\d034/\n/g" | grep "^http" | sort | uniq | sed '$aend of file')
+printf %s "$linklist" | while IFS= read -r url
+do {
+echo $url
+wget $url -S --spider -o outs.log
+sed "s/http/\nhttp/g;s/exe/exe\n/g" outs.log | grep "^http.*x64.exe$\|^http.*i586.exe$" | sort | uniq | grep "^http.*x64.exe$\|^http.*i586.exe$"
+if [ $? -eq 0 ]
+then
+filename=$(sed "s/http/\nhttp/g;s/exe/exe\n/g" outs.log | grep "^http.*x64.exe$\|^http.*i586.exe$" | sort | uniq | sed "s/^.*\///g")
+echo $filename
+cat $db | grep "$filename"
+if [ $? -ne 0 ]; then
+wget --no-cookies --no-check-certificate $url -O $filename
+md5=$(md5sum $filename | sed "s/\s.*//g")
+echo $md5
+sha1=$(sha1sum $filename | sed "s/\s.*//g")
+echo $sha1
+echo "$url">>$db
+echo "$filename">> $db
+echo "$md5">> $db
+echo "$sha1">> $db
+email=$(cat ../posting)
+../send-email.py "$email" "$filename" "$url\n$md5\n$sha1"
+fi
+fi
+} done
 
 
 #clean and remove temp direcotry
