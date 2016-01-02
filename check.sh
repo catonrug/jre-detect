@@ -111,25 +111,25 @@ linklist=$(wget --no-cookies --no-check-certificate https://www.java.com/en/down
 printf %s "$linklist" | while IFS= read -r url
 do {
 echo $url
-wget $url -S --spider -o outs.log
-sed "s/http/\nhttp/g;s/exe/exe\n/g" outs.log | grep "^http.*x64.exe$\|^http.*i586.exe$" | sort | uniq | grep "^http.*x64.exe$\|^http.*i586.exe$"
+wget $url -S --spider -o $tmp/outs.log
+sed "s/http/\nhttp/g;s/exe/exe\n/g" $tmp/outs.log | grep "^http.*x64.exe$\|^http.*i586.exe$" | sort | uniq | grep "^http.*x64.exe$\|^http.*i586.exe$"
 if [ $? -eq 0 ]
 then
-filename=$(sed "s/http/\nhttp/g;s/exe/exe\n/g" outs.log | grep "^http.*x64.exe$\|^http.*i586.exe$" | sort | uniq | sed "s/^.*\///g")
+filename=$(sed "s/http/\nhttp/g;s/exe/exe\n/g" $tmp/outs.log | grep "^http.*x64.exe$\|^http.*i586.exe$" | sort | uniq | sed "s/^.*\///g")
 echo $filename
-cat $db | grep "$filename"
+cat $db | grep "$tmp/$filename"
 if [ $? -ne 0 ]; then
-wget --no-cookies --no-check-certificate $url -O $filename
-md5=$(md5sum $filename | sed "s/\s.*//g")
+wget --no-cookies --no-check-certificate $url -O $tmp/$filename
+md5=$(md5sum $tmp/$filename | sed "s/\s.*//g")
 echo $md5
-sha1=$(sha1sum $filename | sed "s/\s.*//g")
+sha1=$(sha1sum $tmp/$filename | sed "s/\s.*//g")
 echo $sha1
 echo "$url">>$db
 echo "$filename">> $db
 echo "$md5">> $db
 echo "$sha1">> $db
 email=$(cat ../posting)
-python ../send-email.py "$email" "$filename" "$url\n$md5\n$sha1"
+python ../send-email.py "$email" "$filename" "$url \n$md5\n$sha1"
 fi
 fi
 } done
