@@ -117,7 +117,7 @@ if [ $? -eq 0 ]
 then
 filename=$(sed "s/http/\nhttp/g;s/exe/exe\n/g" $tmp/outs.log | grep "^http.*x64.exe$\|^http.*i586.exe$" | sort | uniq | sed "s/^.*\///g")
 echo $filename
-cat $db | grep "$tmp/$filename"
+cat $db | grep "$filename"
 if [ $? -ne 0 ]; then
 wget --no-cookies --no-check-certificate $url -O $tmp/$filename
 md5=$(md5sum $tmp/$filename | sed "s/\s.*//g")
