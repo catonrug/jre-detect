@@ -129,7 +129,9 @@ echo "$filename">> $db
 echo "$md5">> $db
 echo "$sha1">> $db
 email=$(cat ../posting)
-python ../send-email.py "$email" "$filename" "$url \n$md5\n$sha1"
+python ../send-email.py "$email" "$filename" "$url
+$md5
+$sha1"
 fi
 fi
 } done
