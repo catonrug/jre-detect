@@ -128,10 +128,13 @@ echo "$url">>$db
 echo "$filename">> $db
 echo "$md5">> $db
 echo "$sha1">> $db
-email=$(cat ../posting)
-python ../send-email.py "$email" "$filename" "$url
+emails=$(cat ../posting | sed '$aend of file')
+printf %s "$emails" | while IFS= read -r onemail
+do {
+python ../send-email.py "$onemail" "$filename" "$url
 $md5
 $sha1"
+} done
 fi
 fi
 } done
