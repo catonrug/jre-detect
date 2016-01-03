@@ -143,7 +143,27 @@ if [ ! -f "/home/pi/client_secrets.json" ]
 							then
 								echo downloading sample config file [uploader.cfg] for uploader.py..
 								wget https://github.com/jerbly/motion-uploader/raw/04de61ce2c379955acac6a2bee676159882d9a86/uploader.cfg -O ../uploader.cfg -q
+								#turn off email sending about file upload
+								sed -i "s/send-email = true/send-email = no/" ../uploader.cfg
 						fi
+						grep gmailusername ../uploader.cfg > /dev/null
+						if [ $? -eq 0 ]
+							then
+							echo gmail username not configured in ../uploader.cfg. please substitute username:					
+							echo sed -i \"s/gmailusername//\" ../uploader.cfg
+							echo
+						fi
+						grep gmailpassword ../uploader.cfg > /dev/null
+						if [ $? -eq 0 ]
+							then
+							echo gmail password not configured in ../uploader.cfg. please substitute password:						
+							echo sed -i \"s/gmailpassword//\" ../uploader.cfg
+							return
+						fi
+						sed "s/folder = motion/folder = $appname/" ../uploader.cfg > ../gd/$appname.cfg
+						echo Every config file looks fine. Upload to Google Drive will be used.
+						echo Make sure folder "$appname" is created in your Google Drive!
+						echo
 				fi
 		fi
 fi
