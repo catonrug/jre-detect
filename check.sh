@@ -174,6 +174,7 @@ echo "$md5">> $db
 echo "$sha1">> $db
 #if google drive config exists then upload file:
 if [ -f "../gd/$appname.cfg" ]; then
+echo Uploading $filename to Google Drive..
 ../uploader.py "../gd/$appname.cfg" "$tmp/$filename"
 fi
 emails=$(cat ../posting | sed '$aend of file')
