@@ -96,24 +96,27 @@ fi
 sudo dpkg -l | grep p7zip-full > /dev/null
 if [ $? -ne 0 ]
 then
-  echo Installing 7z support
-  sudo apt-get install p7zip-full -y > /dev/null
+  echo 7z support not installed. Please run:
+  echo sudo apt-get install p7zip-full -y
   echo
+  return
 fi
 
 
 #if client_secrets.json not exist then google upload will not work
 if [ ! -f "/home/pi/client_secrets.json" ]
 	then
-		echo /home/pi/client_secrets.json not found. Upload to Google Drive will be impossible
+		echo client_secrets.json not found. Upload to Google Drive will be impossible
 		echo
 	else
 		#if client_secrets.json exist the check for additional libraries to work with upload
+		echo client_secrets.json found!
 		sudo dpkg -l | grep python-pip > /dev/null
 		if [ $? -ne 0 ]
 			then
-				echo alternative Python package installer [pip] is not installed. please run:
+				echo alternative Python package installer [pip] is not installed. Please run:
 				echo sudo apt-get install python-pip -y
+				echo
 				return
 			else
 				#list all python installed modules
@@ -121,8 +124,9 @@ if [ ! -f "/home/pi/client_secrets.json" ]
 				pip freeze | grep "google-api-python-client" > /dev/null
 				if [ $? -ne 0 ]
 					then
-						echo google-api-python-client python module not installed. Installing now..
-						sudo pip install --upgrade google-api-python-client
+						echo google-api-python-client python module not installed. Please run:
+						echo sudo pip install --upgrade google-api-python-client
+						return
 				fi
 				#chech again if all necesary modules are installed to work with google uploder then download upload script:
 				pip freeze | grep "google-api-python-client" > /dev/null
@@ -132,12 +136,13 @@ if [ ! -f "/home/pi/client_secrets.json" ]
 						if [ ! -f "../uploader.py" ]
 							then
 								echo uploader.py not found. downloading now..
-								wget https://github.com/jerbly/motion-uploader/blob/04de61ce2c379955acac6a2bee676159882d9a86/uploader.py -O ../uploader.py -q
+								wget https://github.com/jerbly/motion-uploader/raw/04de61ce2c379955acac6a2bee676159882d9a86/uploader.py -O ../uploader.py -q
+								chmod +x ../uploader.py
 						fi
 						if [ ! -f "../uploader.cfg" ]
 							then
 								echo downloading sample config file [uploader.cfg] for uploader.py..
-								wget https://github.com/jerbly/motion-uploader/blob/04de61ce2c379955acac6a2bee676159882d9a86/uploader.cfg -O ../uploader.cfg -q
+								wget https://github.com/jerbly/motion-uploader/raw/04de61ce2c379955acac6a2bee676159882d9a86/uploader.cfg -O ../uploader.cfg -q
 						fi
 				fi
 		fi
@@ -167,6 +172,10 @@ echo "$url">>$db
 echo "$filename">> $db
 echo "$md5">> $db
 echo "$sha1">> $db
+#if google drive config exists then upload file:
+if [ -f "../gd/$appname.cfg" ]; then
+../uploader.py "../gd/$appname.cfg" "$tmp/$filename"
+fi
 emails=$(cat ../posting | sed '$aend of file')
 printf %s "$emails" | while IFS= read -r onemail
 do {
