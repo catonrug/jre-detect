@@ -107,6 +107,28 @@ then
 fi
 
 
+#if client_secrets.json not exist then google upload will not work
+if [ ! -f "/home/pi/client_secrets.json" ]; then
+  echo /home/pi/client_secrets.json not found. Upload to Google Drive will be impossible
+
+  else
+#if client_secrets.json exist the check for additional libraries
+sudo dpkg -l | grep python-pip > /dev/null
+if [ $? -ne 0 ]
+then
+  echo alternative Python package installer [pip] is not installed. Please run:
+  echo sudo apt-get install python-pip
+  break
+else
+  sudo pip install --upgrade google-api-python-client
+  git clone https://github.com/jerbly/motion-uploader.git
+fi
+
+fi
+
+
+
+
 linklist=$(wget --no-cookies --no-check-certificate https://www.java.com/en/download/manual.jsp -qO- | grep BundleId | sed "s/\d034/\n/g" | grep "^http" | sort | uniq | sed '$aend of file')
 printf %s "$linklist" | while IFS= read -r url
 do {
