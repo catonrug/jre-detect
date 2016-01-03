@@ -110,7 +110,6 @@ if [ ! -f "/home/pi/client_secrets.json" ]
 		echo
 	else
 		#if client_secrets.json exist the check for additional libraries to work with upload
-		echo client_secrets.json found!
 		sudo dpkg -l | grep python-pip > /dev/null
 		if [ $? -ne 0 ]
 			then
@@ -149,15 +148,17 @@ if [ ! -f "/home/pi/client_secrets.json" ]
 						grep gmailusername ../uploader.cfg > /dev/null
 						if [ $? -eq 0 ]
 							then
-							echo gmail username not configured in ../uploader.cfg. please substitute username:					
-							echo sed -i \"s/gmailusername//\" ../uploader.cfg
-							echo
+								echo
+								echo gmail username not configured in ../uploader.cfg. please substitute username:					
+								echo sed -i \"s/gmailusername//\" ../uploader.cfg
+								echo
 						fi
 						grep gmailpassword ../uploader.cfg > /dev/null
 						if [ $? -eq 0 ]
 							then
-							echo gmail password not configured in ../uploader.cfg. please substitute password:						
-							echo sed -i \"s/gmailpassword//\" ../uploader.cfg
+								echo gmail password not configured in ../uploader.cfg. please substitute password:						
+								echo sed -i \"s/gmailpassword//\" ../uploader.cfg
+								echo
 							return
 						fi
 						sed "s/folder = motion/folder = $appname/" ../uploader.cfg > ../gd/$appname.cfg
@@ -173,41 +174,45 @@ fi
 linklist=$(wget --no-cookies --no-check-certificate https://www.java.com/en/download/manual.jsp -qO- | grep BundleId | sed "s/\d034/\n/g" | grep "^http" | sort | uniq | sed '$aend of file')
 printf %s "$linklist" | while IFS= read -r url
 do {
-echo $url
-wget $url -S --spider -o $tmp/outs.log -q
-sed "s/http/\nhttp/g;s/exe/exe\n/g" $tmp/outs.log | grep "^http.*x64.exe$\|^http.*i586.exe$" | sort | uniq | grep "^http.*x64.exe$\|^http.*i586.exe$"
-if [ $? -eq 0 ]
-then
-filename=$(sed "s/http/\nhttp/g;s/exe/exe\n/g" $tmp/outs.log | grep "^http.*x64.exe$\|^http.*i586.exe$" | sort | uniq | sed "s/^.*\///g")
-echo $filename
-cat $db | grep "$filename"
-if [ $? -ne 0 ]; then
-echo downloading $filename
-wget --no-cookies --no-check-certificate $url -O $tmp/$filename -q
-md5=$(md5sum $tmp/$filename | sed "s/\s.*//g")
-echo $md5
-sha1=$(sha1sum $tmp/$filename | sed "s/\s.*//g")
-echo $sha1
-echo "$url">>$db
-echo "$filename">> $db
-echo "$md5">> $db
-echo "$sha1">> $db
-#if google drive config exists then upload file:
-if [ -f "../gd/$appname.cfg" ]; then
-echo Uploading $filename to Google Drive..
-../uploader.py "../gd/$appname.cfg" "$tmp/$filename"
-fi
-emails=$(cat ../posting | sed '$aend of file')
-printf %s "$emails" | while IFS= read -r onemail
-do {
-python ../send-email.py "$onemail" "$filename" "$url
-$md5
-$sha1"
+	#echo $url
+	wget $url -S --spider -o $tmp/outs.log -q
+	#detect if there is any exe file in the link
+	sed "s/http/\nhttp/g;s/exe/exe\n/g" $tmp/outs.log | grep "^http.*x64.exe$\|^http.*i586.exe$" | sort | uniq | grep "^http.*x64.exe$\|^http.*i586.exe$" > /dev/null
+		if [ $? -eq 0 ]
+			then
+				#if there IS exe file then get filename only NOT full path
+				filename=$(sed "s/http/\nhttp/g;s/exe/exe\n/g" $tmp/outs.log | grep "^http.*x64.exe$\|^http.*i586.exe$" | sort | uniq | sed "s/^.*\///g")
+				#echo $filename
+				cat $db | grep "$filename"
+					if [ $? -ne 0 ]
+						then
+							echo Downloading $filename
+							wget --no-cookies --no-check-certificate $url -O $tmp/$filename -q
+							md5=$(md5sum $tmp/$filename | sed "s/\s.*//g")
+							echo $md5
+							sha1=$(sha1sum $tmp/$filename | sed "s/\s.*//g")
+							echo $sha1
+							echo "$url">>$db
+							echo "$filename">> $db
+							echo "$md5">> $db
+							echo "$sha1">> $db
+								#if google drive config exists then upload file:
+								if [ -f "../gd/$appname.cfg" ]
+									then
+										echo Uploading $filename to Google Drive..
+										../uploader.py "../gd/$appname.cfg" "$tmp/$filename"
+								fi
+							emails=$(cat ../posting | sed '$aend of file')
+							printf %s "$emails" | while IFS= read -r onemail
+							do {
+								python ../send-email.py "$onemail" "$filename" "$url
+								$md5
+								$sha1"
+							} done
+							echo
+					fi
+		fi
 } done
-fi
-fi
-} done
-
 
 #clean and remove temp direcotry
 rm $tmp -rf > /dev/null
