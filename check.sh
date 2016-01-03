@@ -96,28 +96,44 @@ fi
 sudo dpkg -l | grep p7zip-full > /dev/null
 if [ $? -ne 0 ]
 then
-  echo installing 7z support
+  echo Installing 7z support
   sudo apt-get install p7zip-full
   echo
 fi
 
 
 #if client_secrets.json not exist then google upload will not work
-if [ ! -f "/home/pi/client_secrets.json" ]; then
-  echo /home/pi/client_secrets.json not found. Upload to Google Drive will be impossible
-  echo
+if [ ! -f "/home/pi/client_secrets.json" ]
+  then
+    echo /home/pi/client_secrets.json not found. Upload to Google Drive will be impossible
+    echo
   else
-#if client_secrets.json exist the check for additional libraries
-sudo dpkg -l | grep python-pip > /dev/null
-if [ $? -ne 0 ]
-then
-  echo alternative Python package installer [pip] is not installed. Please run:
-  echo sudo apt-get install python-pip
-  return
-else
-  sudo pip install --upgrade google-api-python-client
-  git clone https://github.com/jerbly/motion-uploader.git
+    #if client_secrets.json exist the check for additional libraries to work with upload
+    sudo dpkg -l | grep python-pip > /dev/null
+    if [ $? -ne 0 ]
+      then
+        echo alternative Python package installer [pip] is not installed. please run:
+        echo sudo apt-get install python-pip -y
+        return
+      else
+        pip freeze | grep "google-api-python-client" > /dev/null
+        if [ $? -ne 0 ]
+          then
+		    echo google-api-python-client python module not installed. Installing now..
+            sudo pip install --upgrade google-api-python-client
+          fi
+    fi
 fi
+
+#if all necesary modules are installed to work with google uploder then download upload script:
+pip freeze | grep "google-api-python-client" > /dev/null
+if [ $? -eq 0 ]
+  then
+    if [ ! -f "../uploader.py" ]
+	  then
+        echo uploader.py not found. downloading now..
+        wget https://github.com/jerbly/motion-uploader/blob/04de61ce2c379955acac6a2bee676159882d9a86/uploader.py -O ../uploader.py -q
+    fi
 fi
 
 
