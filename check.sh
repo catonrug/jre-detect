@@ -5,8 +5,7 @@
 
 #sudo apt-get update -y && sudo apt-get upgrade -y
 #sudo apt-get install git -y
-#mkdir -p /home/pi/detect 
-#cd /home/pi/detect
+#mkdir -p /home/pi/detect && cd /home/pi/detect
 #git clone https://github.com/catonrug/jre-detect.git && cd jre-detect && chmod +x check.sh && clear && ./check.sh
 
 #check if script is located in /home direcotry
@@ -27,6 +26,7 @@ fi
 if [ ! -f "../send-email.py" ]; then
   echo send-email.py not found. downloading now..
   wget https://gist.githubusercontent.com/superdaigo/3754055/raw/e28b4b65110b790e4c3e4891ea36b39cd8fcf8e0/zabbix-alert-smtp.sh -O ../send-email.py -q
+  echo
 fi
 
 #check if email sender is configured
@@ -44,6 +44,7 @@ if [ $? -eq 0 ]; then
   echo password is not configured in ../send-email.py please look at line:
   grep -in "your mail password" ../send-email.py
   echo sed -i \"s/your mail password//\" ../send-email.py
+  echo
   return
 fi
 
@@ -72,6 +73,7 @@ fi
 if [ ! -f "../html-downloader.py" ]; then
   echo html-downloader.py not found. downloading now..
   wget https://github.com/catonrug/html-downloader/raw/3c3fc6a5b551c94a5b528af3674ddddb5b60fec1/html-downloader.py -O ../html-downloader.py -q
+  echo
 fi
 
 
@@ -248,8 +250,8 @@ do {
 							printf %s "$emails" | while IFS= read -r onemail
 							do {
 								python ../send-email.py "$onemail" "$filename" "$url
-								$md5
-								$sha1"
+$md5
+$sha1"
 							} done
 							echo
 					fi
