@@ -96,15 +96,16 @@ fi
 sudo dpkg -l | grep p7zip-full > /dev/null
 if [ $? -ne 0 ]
 then
-  echo 7z support no installed. Please run:
-  echo sudo apt-get install p7zip-full
+  echo installing 7z support
+  sudo apt-get install p7zip-full
+  echo
 fi
 
 
 #if client_secrets.json not exist then google upload will not work
 if [ ! -f "/home/pi/client_secrets.json" ]; then
   echo /home/pi/client_secrets.json not found. Upload to Google Drive will be impossible
-
+  echo
   else
 #if client_secrets.json exist the check for additional libraries
 sudo dpkg -l | grep python-pip > /dev/null
@@ -124,7 +125,7 @@ linklist=$(wget --no-cookies --no-check-certificate https://www.java.com/en/down
 printf %s "$linklist" | while IFS= read -r url
 do {
 echo $url
-wget $url -S --spider -o $tmp/outs.log
+wget $url -S --spider -o $tmp/outs.log -q
 sed "s/http/\nhttp/g;s/exe/exe\n/g" $tmp/outs.log | grep "^http.*x64.exe$\|^http.*i586.exe$" | sort | uniq | grep "^http.*x64.exe$\|^http.*i586.exe$"
 if [ $? -eq 0 ]
 then
@@ -132,7 +133,8 @@ filename=$(sed "s/http/\nhttp/g;s/exe/exe\n/g" $tmp/outs.log | grep "^http.*x64.
 echo $filename
 cat $db | grep "$filename"
 if [ $? -ne 0 ]; then
-wget --no-cookies --no-check-certificate $url -O $tmp/$filename
+echo downloading $filename
+wget --no-cookies --no-check-certificate $url -O $tmp/$filename -q
 md5=$(md5sum $tmp/$filename | sed "s/\s.*//g")
 echo $md5
 sha1=$(sha1sum $tmp/$filename | sed "s/\s.*//g")
