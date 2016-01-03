@@ -154,6 +154,7 @@ if [ ! -f "/home/pi/client_secrets.json" ]
 								echo uploader.py not found. downloading now..
 								wget https://github.com/jerbly/motion-uploader/raw/04de61ce2c379955acac6a2bee676159882d9a86/uploader.py -O ../uploader.py -q
 								chmod +x ../uploader.py
+								echo
 						fi
 						if [ ! -f "../uploader.cfg" ]
 							then
@@ -163,6 +164,7 @@ if [ ! -f "/home/pi/client_secrets.json" ]
 								sed -i "s/send-email = true/send-email = no/" ../uploader.cfg
 								#set default upload direcotry to test
 								sed -i "s/folder = motion/folder = test/" ../uploader.cfg
+								echo
 						fi
 						grep gmailusername ../uploader.cfg > /dev/null
 						if [ $? -eq 0 ]
@@ -182,7 +184,6 @@ if [ ! -f "/home/pi/client_secrets.json" ]
 						fi
 						if [ ! -f "../../uploader_credentials.txt" ]
 							then
-								echo
 								echo please create \"test\" directory at your google drive
 								echo then try to upload some example file. please execute:
 								echo ../uploader.py ../uploader.cfg ../html-downloader.py
