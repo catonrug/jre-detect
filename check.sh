@@ -7,10 +7,7 @@
 #sudo apt-get install git -y
 #mkdir -p /home/pi/detect 
 #cd /home/pi/detect
-#git clone https://github.com/catonrug/jre-detect.git
-#cd jre-detect
-#chmod +x check.sh
-#./check.sh
+#git clone https://github.com/catonrug/jre-detect.git && cd jre-detect && chmod +x check.sh && clear && ./check.sh
 
 #check if script is located in /home direcotry
 pwd | grep "^/home/" > /dev/null
@@ -183,8 +180,9 @@ if [ ! -f "/home/pi/client_secrets.json" ]
 								echo
 							return
 						fi
-						if [ ! -f "~/uploader_credentials.txt" ]
+						if [ ! -f "../../uploader_credentials.txt" ]
 							then
+								echo
 								echo please create \"test\" directory at your google drive
 								echo then try to upload some example file. please execute:
 								echo ../uploader.py ../uploader.cfg ../html-downloader.py
