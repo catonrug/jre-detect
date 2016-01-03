@@ -97,44 +97,52 @@ sudo dpkg -l | grep p7zip-full > /dev/null
 if [ $? -ne 0 ]
 then
   echo Installing 7z support
-  sudo apt-get install p7zip-full
+  sudo apt-get install p7zip-full -y > /dev/null
   echo
 fi
 
 
 #if client_secrets.json not exist then google upload will not work
 if [ ! -f "/home/pi/client_secrets.json" ]
-  then
-    echo /home/pi/client_secrets.json not found. Upload to Google Drive will be impossible
-    echo
-  else
-    #if client_secrets.json exist the check for additional libraries to work with upload
-    sudo dpkg -l | grep python-pip > /dev/null
-    if [ $? -ne 0 ]
-      then
-        echo alternative Python package installer [pip] is not installed. please run:
-        echo sudo apt-get install python-pip -y
-        return
-      else
-        pip freeze | grep "google-api-python-client" > /dev/null
-        if [ $? -ne 0 ]
-          then
-		    echo google-api-python-client python module not installed. Installing now..
-            sudo pip install --upgrade google-api-python-client
-          fi
-    fi
+	then
+		echo /home/pi/client_secrets.json not found. Upload to Google Drive will be impossible
+		echo
+	else
+		#if client_secrets.json exist the check for additional libraries to work with upload
+		sudo dpkg -l | grep python-pip > /dev/null
+		if [ $? -ne 0 ]
+			then
+				echo alternative Python package installer [pip] is not installed. please run:
+				echo sudo apt-get install python-pip -y
+				return
+			else
+				#list all python installed modules
+				#check if google-api-python-client is really installed
+				pip freeze | grep "google-api-python-client" > /dev/null
+				if [ $? -ne 0 ]
+					then
+						echo google-api-python-client python module not installed. Installing now..
+						sudo pip install --upgrade google-api-python-client
+				fi
+				#chech again if all necesary modules are installed to work with google uploder then download upload script:
+				pip freeze | grep "google-api-python-client" > /dev/null
+				if [ $? -eq 0 ]
+					then
+						#if every necessary software and module is installed then download uploader script and sample config file
+						if [ ! -f "../uploader.py" ]
+							then
+								echo uploader.py not found. downloading now..
+								wget https://github.com/jerbly/motion-uploader/blob/04de61ce2c379955acac6a2bee676159882d9a86/uploader.py -O ../uploader.py -q
+						fi
+						if [ ! -f "../uploader.cfg" ]
+							then
+								echo downloading sample config file [uploader.cfg] for uploader.py..
+								wget https://github.com/jerbly/motion-uploader/blob/04de61ce2c379955acac6a2bee676159882d9a86/uploader.cfg -O ../uploader.cfg -q
+						fi
+				fi
+		fi
 fi
 
-#if all necesary modules are installed to work with google uploder then download upload script:
-pip freeze | grep "google-api-python-client" > /dev/null
-if [ $? -eq 0 ]
-  then
-    if [ ! -f "../uploader.py" ]
-	  then
-        echo uploader.py not found. downloading now..
-        wget https://github.com/jerbly/motion-uploader/blob/04de61ce2c379955acac6a2bee676159882d9a86/uploader.py -O ../uploader.py -q
-    fi
-fi
 
 
 linklist=$(wget --no-cookies --no-check-certificate https://www.java.com/en/download/manual.jsp -qO- | grep BundleId | sed "s/\d034/\n/g" | grep "^http" | sort | uniq | sed '$aend of file')
