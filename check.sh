@@ -38,12 +38,6 @@ if [ $? -eq 0 ]; then
   break
 fi
 
-#check if Google Drive uploader program exists
-if [ ! -f "../uploader.py" ]; then
-  echo uploader.py not found. downloading now..
-  wget https://github.com/catonrug/gduploader/raw/4d6414047d0f78e81b390f167a8e9d9e9441325a/uploader.py -O ../uploader.py -q
-fi
-
 #check for file where all emails will be used to send messages
 if [ ! -f "../posting" ]; then
   echo posting email address not configured. all changes will be submited to all email adresies in this file
@@ -123,10 +117,7 @@ else
   sudo pip install --upgrade google-api-python-client
   git clone https://github.com/jerbly/motion-uploader.git
 fi
-
 fi
-
-
 
 
 linklist=$(wget --no-cookies --no-check-certificate https://www.java.com/en/download/manual.jsp -qO- | grep BundleId | sed "s/\d034/\n/g" | grep "^http" | sort | uniq | sed '$aend of file')
