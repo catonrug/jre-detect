@@ -4,14 +4,14 @@
 pwd | grep "^/home/" > /dev/null
 if [ $? -ne 0 ]; then
   echo script must be located in /home direcotry
-  break
+  return
 fi
 
 #it is highly recommended to place this directory in another directory
 deep=$(pwd | sed "s/\//\n/g" | grep -v "^$" | wc -l)
 if [ $deep -lt 4 ]; then
   echo please place this script in another directory
-  break
+  return
 fi
 
 #check if email sender exists
@@ -35,7 +35,7 @@ if [ $? -eq 0 ]; then
   echo password is not configured in ../send-email.py please look at line:
   grep -in "your mail password" ../send-email.py
   echo sed -i \"s/your mail password//\" ../send-email.py
-  break
+  return
 fi
 
 #check for file where all emails will be used to send messages
@@ -50,7 +50,7 @@ if [ ! -f "../maintenance" ]; then
   echo maintenance email address not configured. this will be used to check if the page even still exist.
   echo echo your.email@gmail.com\> ../maintenance
   echo
-  break
+  return
 fi
 
 #check for javascript html downloader
@@ -112,7 +112,7 @@ if [ $? -ne 0 ]
 then
   echo alternative Python package installer [pip] is not installed. Please run:
   echo sudo apt-get install python-pip
-  break
+  return
 else
   sudo pip install --upgrade google-api-python-client
   git clone https://github.com/jerbly/motion-uploader.git
