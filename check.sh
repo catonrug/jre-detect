@@ -22,6 +22,24 @@ if [ $deep -lt 4 ]; then
   return
 fi
 
+#check if global check-all.sh is installed
+if [ ! -f "../check-all.sh" ]; then
+  echo installing check-all.sh
+cat > ../check-all.sh <<EOF
+#!/bin/sh
+todo=\$(ls -1 */check.sh | sed '\$aend of file')
+printf %s "\$todo" | while IFS= read -r job
+do {
+workdir=\$(echo \$job | sed "s/\/.*\$//g")
+cd \$workdir
+./check.sh
+cd ..
+} done
+EOF
+chmod +x ../check-all.sh
+echo
+fi
+
 #check if email sender exists
 if [ ! -f "../send-email.py" ]; then
   echo send-email.py not found. downloading now..
