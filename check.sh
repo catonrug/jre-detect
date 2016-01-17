@@ -27,7 +27,7 @@ if [ ! -f "../check-all.sh" ]; then
   echo installing check-all.sh
 cat > ../check-all.sh <<EOF
 #!/bin/sh
-cd `dirname \$0`
+cd \`dirname \$0\`
 todo=\$(ls -1 */check.sh | sed '\$aend of file')
 printf %s "\$todo" | while IFS= read -r job
 do {
