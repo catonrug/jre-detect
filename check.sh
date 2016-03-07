@@ -54,6 +54,12 @@ if [ ! -d "../gd" ]; then
   mkdir -p "../gd"
 fi
 
+if [ -f ~/uploader_credentials.txt ]; then
+sed "s/folder = test/folder = `echo $appname`/" ../uploader.cfg > ../gd/$appname.cfg
+else
+echo google upload will not be used cause ~/uploader_credentials.txt do not exist
+fi
+
 #put all links that contains "BundleId" in array
 linklist=$(wget --no-cookies --no-check-certificate https://www.java.com/en/download/manual.jsp -qO- | grep BundleId | sed "s/\d034/\n/g" | grep "^http" | sort | uniq | sed '$aend of file')
 
